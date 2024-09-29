@@ -11,7 +11,7 @@ dependencies:
   dart_frog: ^1.1.0
   freezed_annotation: ^2.4.1
   http: ^1.2.1
-  is_valid: ^0.0.8
+  # is_valid: ^0.0.8
   json_annotation: ^4.8.1
 
 dev_dependencies:

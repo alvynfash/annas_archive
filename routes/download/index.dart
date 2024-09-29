@@ -1,6 +1,5 @@
 import 'package:annas_archive/anna_api.dart';
 import 'package:dart_frog/dart_frog.dart';
-import 'package:is_valid/is_valid.dart';
 
 Future<Response> onRequest(RequestContext context) async {
   final request = context.request;
@@ -13,9 +12,9 @@ Future<Response> onRequest(RequestContext context) async {
 
   final md5 = params['md5'] ?? '';
 
-  if (IsValid.validateChecksumMD5(md5)) {
-    return Response(statusCode: 400, body: 'Invalid MD5');
-  }
+  // if (IsValid.validateChecksumMD5(md5)) {
+  //   return Response(statusCode: 400, body: 'Invalid MD5');
+  // }
 
   return AnnaApi().getLibGenLIDownloadLink(md5).then((link) {
     if (link == null) {
