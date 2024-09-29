@@ -4,8 +4,7 @@ analyzer:
     public_member_api_docs: ignore
     no_default_cases: ignore
     require_trailing_commas: ignore
-  exclude:
-    - build/**
+  exclude: [build/**, lib/**.freezed.dart, lib/**.g.dart]
 linter:
   rules:
     file_names: false

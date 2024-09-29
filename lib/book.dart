@@ -1,3 +1,4 @@
+import 'package:annas_archive/enums.dart';
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -13,7 +14,7 @@ class Book with _$Book {
     required String imgUrl,
     required String size,
     required String genre,
-    required GrookType type,
+    required Format format,
   }) = _Book;
 
   factory Book.fromAnna(Bs4Element soupElement) {
@@ -63,18 +64,22 @@ class Book with _$Book {
       return splitMetadata[3].trim();
     }
 
+    String capitalize(String s) => s[0].toUpperCase() + s.substring(1);
+
     String getGenre(List<String> splitMetadata) {
-      return splitMetadata[4].split('(')[1].split(')')[0];
+      return capitalize(splitMetadata[4]
+          .replaceAll('(', '')
+          .replaceAll(')', '')
+          .split(' ')
+          .last);
     }
 
     String getUncommentedHtml(Bs4Element soupElement) {
       return soupElement.outerHtml.replaceAll('<!--', '').replaceAll('-->', '');
     }
 
-    GrookType getType(List<String> splitMetadata) {
-      return splitMetadata[1].trim().contains(GrookType.pdf.extension)
-          ? GrookType.pdf
-          : GrookType.epub;
+    Format getFormat(List<String> splitMetadata) {
+      return Format.fromString(splitMetadata[1].trim().replaceAll('.', ''));
     }
 
     final soup = BeautifulSoup(getUncommentedHtml(soupElement));
@@ -91,7 +96,7 @@ class Book with _$Book {
       md5: getMd5(soup),
       size: getSize(splitMetadata),
       genre: getGenre(splitMetadata),
-      type: getType(splitMetadata),
+      format: getFormat(splitMetadata),
       author: getAuthor(soup),
     );
   }
@@ -147,37 +152,9 @@ class Book with _$Book {
       size: 'unknown size',
       genre: '',
       author: getAuthor(),
-      type: GrookType.unknown,
+      format: Format.unknown,
     );
   }
-  // final String title;
-  // final String author;
-  // final String md5;
-  // final String imgUrl;
-  // final String size;
-  // final String genre;
-  // final GrookType type;
 
   factory Book.fromJson(Map<String, Object?> json) => _$BookFromJson(json);
-}
-
-enum GrookType {
-  pdf('.pdf'),
-  epub('.epub'),
-  unknown('');
-
-  const GrookType(this.extension);
-
-  final String extension;
-
-  static GrookType fromString(String value) {
-    if (value.contains(GrookType.pdf.extension)) {
-      return GrookType.pdf;
-    }
-    if (value.contains(GrookType.epub.extension)) {
-      return GrookType.epub;
-    }
-
-    return GrookType.unknown;
-  }
 }

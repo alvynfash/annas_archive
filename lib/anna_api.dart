@@ -5,8 +5,6 @@ import 'package:annas_archive/soup.dart';
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
 
 class AnnaApi {
-  static const resultLimit = 100;
-
   int? getAnnaResultCount(BeautifulSoup soup) {
     try {
       final count = soup
@@ -31,10 +29,7 @@ class AnnaApi {
     try {
       const baseUrl = 'https://annas-archive.org/search?index=&q=';
       final formattedQuery = searchRequest.query.replaceAll(' ', '+');
-      final urlEnding = _getUrlEnding(
-        epub: searchRequest.epub,
-        pdf: searchRequest.pdf,
-      );
+      final urlEnding = _getUrlEnding(searchRequest);
 
       final url = baseUrl + formattedQuery + urlEnding;
 
@@ -48,7 +43,9 @@ class AnnaApi {
       final books = soup.findAll(
         'div',
         class_: 'h-[125px] flex flex-col justify-center',
-        limit: resultCount < resultLimit ? resultCount : resultLimit,
+        limit: resultCount < searchRequest.limit
+            ? resultCount
+            : searchRequest.limit,
       );
 
       return convertListToModelWithErrorCount<Book>(
@@ -68,14 +65,10 @@ class AnnaApi {
       final author = searchRequest.author.replaceAll(',', '');
       final authorQuery =
           '&termtype_1=author&termval_1=$author'; //.replaceAll(' ', '+');
-      final urlEnding = _getUrlEnding(
-        epub: searchRequest.epub,
-        pdf: searchRequest.pdf,
-      );
+      final urlEnding = _getUrlEnding(searchRequest);
 
       final url = baseUrl + formattedQuery + authorQuery + urlEnding;
       final soup = await cookSoup(Uri.encodeFull(url));
-
       final resultCount = getAnnaResultCount(soup);
       if (resultCount == null || resultCount == 0) {
         return [];
@@ -84,7 +77,9 @@ class AnnaApi {
       final books = soup.findAll(
         'div',
         class_: 'h-[125px] flex flex-col justify-center',
-        limit: resultCount,
+        limit: resultCount < searchRequest.limit
+            ? resultCount
+            : searchRequest.limit,
       );
 
       return convertListToModelWithErrorCount<Book>(
@@ -96,17 +91,45 @@ class AnnaApi {
     }
   }
 
-  String _getUrlEnding({required bool epub, required bool pdf}) {
-    var urlEnding =
-        '&acc=external_download&content=book_nonfiction&content=book_fiction&src=lgli&sort=&lang=en';
+  String _getUrlEnding(SearchRequest searchRequest) {
+    var urlEnding = '&acc=external_download&src=lgli';
 
-    if (epub) {
+    // Content
+    if (searchRequest.contents.contains(Content.fiction)) {
+      urlEnding += '&content=book_fiction';
+    }
+
+    if (searchRequest.contents.contains(Content.nonfiction)) {
+      urlEnding += '&content=book_nonfiction';
+    }
+
+    if (searchRequest.contents.contains(Content.magazine)) {
+      urlEnding += '&content=magazine';
+    }
+
+    if (searchRequest.contents.contains(Content.comic)) {
+      urlEnding += '&content=book_comic';
+    }
+
+    // Formats
+    if (searchRequest.formats.contains(Format.epub)) {
       urlEnding += '&ext=epub';
     }
-    if (pdf) {
+
+    if (searchRequest.formats.contains(Format.pdf)) {
       urlEnding += '&ext=pdf';
     }
-    return urlEnding;
+
+    if (searchRequest.formats.contains(Format.mobi)) {
+      urlEnding += '&ext=mobi';
+    }
+
+    if (searchRequest.formats.contains(Format.azw3)) {
+      urlEnding += '&ext=azw3';
+    }
+
+    return urlEnding +=
+        '&lang=${searchRequest.language.code}&sort=${searchRequest.sort.value}';
   }
 
   Future<String?> getDownloadLink(Book book) async {
@@ -191,7 +214,8 @@ class AnnaApi {
   // }
 
   Future<List<Book>> getGoodreadsProfile(BeautifulSoup soup) async {
-    // final bookCountContainer = soup.find("tbody", id: "booksBody");
+    const resultLimit = 100;
+
     final books = soup.findAll(
       'tr',
       class_: 'bookalike review',

@@ -1,3 +1,4 @@
+import 'package:annas_archive/enums.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'search_request.freezed.dart';
@@ -9,8 +10,11 @@ class SearchRequest with _$SearchRequest {
     required String query,
     required bool useAdvanced,
     required String author,
-    required bool epub,
-    required bool pdf,
+    @Default([]) List<Format> formats,
+    @Default(20) int limit,
+    @Default(Language.english) Language language,
+    @Default([]) List<Content> contents,
+    @Default(SortOption.mostRelevant) SortOption sort,
   }) = _SearchRequest;
 
   factory SearchRequest.fromJson(Map<String, Object?> json) =>
