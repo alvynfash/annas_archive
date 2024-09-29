@@ -1,4 +1,4 @@
-import 'package:annas_archive/anna_api.dart';
+import 'package:annas_archive_api/annas_archive_api.dart';
 import 'package:dart_frog/dart_frog.dart';
 
 Future<Response> onRequest(RequestContext context) async {
@@ -16,7 +16,7 @@ Future<Response> onRequest(RequestContext context) async {
   //   return Response(statusCode: 400, body: 'Invalid MD5');
   // }
 
-  return AnnaApi().getLibGenLIDownloadLink(md5).then((link) {
+  return AnnaApi().getDownloadLink(md5).then((link) {
     if (link == null) {
       return Response(statusCode: 404, body: 'Download link not found');
     }
