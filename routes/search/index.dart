@@ -21,7 +21,14 @@ Future<Response> onRequest(RequestContext context) async {
   final language =
       Language.fromString(params['lang']?.firstOrNull ?? Language.english.code);
 
-  final categories = params['cat']
+  final cats = params['cat']
+      ?.firstOrNull
+      // ?.replaceAll('[', '')
+      // .replaceAll(']', '')
+      ?.replaceAll(' ', '')
+      .split(',');
+
+  final categories = cats
           ?.map(Category.fromString)
           .where((category) => category != Category.unknown)
           .toList() ??
