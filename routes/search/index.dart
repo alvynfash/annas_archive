@@ -18,17 +18,13 @@ Future<Response> onRequest(RequestContext context) async {
       ? int.tryParse(params['limit']!.first) ?? _defaultSearchLimit
       : _defaultSearchLimit;
 
+  final skip =
+      params.containsKey('skip') ? int.tryParse(params['skip']!.first) ?? 0 : 0;
+
   final language =
       Language.fromString(params['lang']?.firstOrNull ?? Language.english.code);
 
-  final cats = params['cat']
-      ?.firstOrNull
-      // ?.replaceAll('[', '')
-      // .replaceAll(']', '')
-      ?.replaceAll(' ', '')
-      .split(',');
-
-  final categories = cats
+  final categories = params['cat']
           ?.map(Category.fromString)
           .where((category) => category != Category.unknown)
           .toList() ??
@@ -45,22 +41,17 @@ Future<Response> onRequest(RequestContext context) async {
 
   final searchRequest = SearchRequest(
     query: searchTerm,
-    useAdvanced: true,
     author: author,
     language: language,
     limit: limit,
+    skip: skip,
     sort: sort,
     categories: categories.isNotEmpty ? categories : kAllCategories,
     formats: formats.isNotEmpty ? formats : kAllFormats,
   );
 
   return AnnaApi().find(searchRequest).then((result) {
-    return Response.json(
-      body: {
-        'total': result.length,
-        'results': result,
-      },
-    );
+    return Response.json(body: result);
   }).catchError((e) {
     return Response(statusCode: 500, body: 'Error finding books');
   });
