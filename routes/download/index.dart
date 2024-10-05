@@ -16,14 +16,12 @@ Future<Response> onRequest(RequestContext context) async {
   //   return Response(statusCode: 400, body: 'Invalid MD5');
   // }
 
-  return AnnaApi().getDownloadLink(md5).then((link) {
-    if (link == null) {
+  return AnnaApi().getDownloadLinks(md5).then((links) {
+    if (links.isEmpty) {
       return Response(statusCode: 404, body: 'Download link not found');
     }
 
-    return Response.json(body: {
-      'file': link,
-    });
+    return Response.json(body: links);
   }).catchError((e) {
     return Response(statusCode: 500, body: 'Error finding download link');
   });

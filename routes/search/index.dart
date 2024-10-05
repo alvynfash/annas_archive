@@ -25,8 +25,8 @@ Future<Response> onRequest(RequestContext context) async {
       Language.fromString(params['lang']?.firstOrNull ?? Language.english.code);
 
   final categories = params['cat']
-          ?.map(Category.fromString)
-          .where((category) => category != Category.unknown)
+          ?.map(Category.fromDomainString)
+          .where((category) => category != Category.invalid)
           .toList() ??
       [];
 
@@ -69,4 +69,7 @@ const kAllCategories = [
   Category.nonfiction,
   Category.magazine,
   Category.comic,
+  Category.unknown,
+  Category.musicalScore,
+  Category.other,
 ];
