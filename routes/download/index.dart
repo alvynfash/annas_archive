@@ -4,13 +4,13 @@ import 'package:dart_frog/dart_frog.dart';
 Future<Response> onRequest(RequestContext context) async {
   final request = context.request;
 
-  final params = request.uri.queryParameters;
+  final params = request.uri.queryParametersAll;
 
-  if (!params.containsKey('md5')) {
+  final md5 = params['md5']?.firstOrNull ?? '';
+
+  if (md5.isEmpty) {
     return Response(statusCode: 400, body: 'Missing required MD5 parameter');
   }
-
-  final md5 = params['md5'] ?? '';
 
   // if (IsValid.validateChecksumMD5(md5)) {
   //   return Response(statusCode: 400, body: 'Invalid MD5');
