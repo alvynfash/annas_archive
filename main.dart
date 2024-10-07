@@ -9,8 +9,8 @@ ReliableIntervalTimer? timer;
 const healthInterval = Duration(seconds: 90);
 const apiAddress = 'https://www.anna-app.tribestick.com';
 
-Future<void> init(InternetAddress ip, int port) async {
-  await ReliableIntervalTimer(
+void init(InternetAddress ip, int port) {
+  ReliableIntervalTimer(
     interval: healthInterval,
     callback: (elapsedMilliseconds) {
       http.get(Uri.parse('$apiAddress/health'));
